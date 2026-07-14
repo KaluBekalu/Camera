@@ -1,0 +1,15 @@
+# Build output
+build/
+DerivedData/
+*.app
+
+# Xcode user state
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+
+# macOS
+.DS_Store
+
+# Knowledge graph output
+graphify-out/
