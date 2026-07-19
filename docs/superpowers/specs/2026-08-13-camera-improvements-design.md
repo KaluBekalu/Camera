@@ -14,7 +14,7 @@ No feature is gated by device identity (`if device == iPhone…`). Every control
 - Controls appear only when the active device/format reports support (`isCenterStageSupported`, `canPerformReactionEffects`, `isTorchAvailable`, …). This is already the codebase's `DeviceCapabilities` pattern — new work extends it, never bypasses it.
 - Replace the existing timed re-read of `isCenterStageActive` (0.4 s `asyncAfter`) with KVO observation.
 - Numeric limits derive from device-reported data, not constants: max digital zoom is computed from the active format's pixel dimensions (zoom capped where the cropped output would fall below a 640-px minimum width), so a 4K Continuity Camera feed allows deeper zoom than a 720p webcam automatically.
-- Observe `displayVideoZoomFactorMultiplier` (macOS 14+) via KVO so system-driven zoom on Continuity Camera is reflected, not fought.
+- ~~Observe `displayVideoZoomFactorMultiplier`~~ — dropped: `videoZoomFactor` itself is unreadable on macOS, so the display multiplier has nothing to multiply; observing it would add dead code.
 
 ## Verified platform facts (macOS 26 SDK headers + runtime probe)
 
@@ -26,8 +26,8 @@ No feature is gated by device identity (`if device == iPhone…`). Every control
 ## 1. App icon
 
 - **Design:** macOS-squircle, dark glass background with subtle vertical gradient matching the app's glass aesthetic; centered lens motif — concentric rings, aperture-blade hint, specular glass highlight.
-- **Source of truth:** `Resources/icon.svg` (hand-authored, checked in).
-- **Build:** `scripts/make-icon.sh` renders the SVG to the 10 required sizes (16→1024 @1x/@2x) into an `.iconset`, then `iconutil -c icns` → `Resources/AppIcon.icns`. Rendering uses tools available without full Xcode (`qlmanage`/`sips` or `rsvg-convert` if present; the script picks what exists).
+- **Source of truth:** `scripts/make-icon.swift` — the icon is drawn programmatically with CoreGraphics (no SVG renderer dependency; fully reproducible with Command Line Tools alone).
+- **Build:** `scripts/make-icon.sh` compiles and runs the Swift drawer to emit the 10 required sizes (16→1024 @1x/@2x) into an `.iconset`, then `iconutil -c icns` → `Resources/AppIcon.icns`.
 - **Wiring:** `Resources/AppIcon.icns` committed (so builds don't require regeneration); referenced from `project.yml` (`CFBundleIconFile`) and copied by `build.sh` into the app bundle; `Info.plist` gains `CFBundleIconFile`.
 
 ## 2. Zoom (digital; preview + photos)
