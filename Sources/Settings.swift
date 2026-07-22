@@ -11,6 +11,7 @@ enum SettingsKey {
     static let photoFormat = "photoFormat"    // "jpeg" | "heif"
     static let photoDir = "photoDir"          // custom save path or ""
     static let videoDir = "videoDir"          // custom save path or ""
+    static let aspectRatio = "aspectRatio"    // AspectRatio rawValue
 
     /// Register sane defaults once at launch.
     static func registerDefaults() {
@@ -23,6 +24,7 @@ enum SettingsKey {
             photoFormat: "jpeg",
             photoDir: "",
             videoDir: "",
+            aspectRatio: AspectRatio.full.rawValue,
         ])
     }
 }

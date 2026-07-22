@@ -1,6 +1,7 @@
 import AVFoundation
 import AppKit
 import Combine
+import CoreMedia
 import SwiftUI
 
 /// Capture mode the UI is currently in.
@@ -29,6 +30,7 @@ struct DeviceCapabilities {
     var canMirror = false
     var canReact = false
     var reactionTypes: [String] = []   // AVCaptureReactionType raw values
+    var maxZoom: CGFloat = 1
 }
 
 /// Owns the `AVCaptureSession` and drives photo/video capture plus the
@@ -57,6 +59,17 @@ final class CameraController: NSObject, ObservableObject {
     @Published private(set) var whiteBalanceLocked = false
     @Published private(set) var centerStageOn = false
     @Published var mirrored = false { didSet { if oldValue != mirrored { applyMirroring() } } }
+    @Published private(set) var zoomFactor: CGFloat = 1
+    @Published private(set) var sensorAspect: CGFloat = 16.0 / 9.0
+    @Published var aspectRatio: AspectRatio = AspectRatio(
+        rawValue: UserDefaults.standard.string(forKey: SettingsKey.aspectRatio) ?? "full") ?? .full {
+        didSet {
+            if oldValue != aspectRatio {
+                UserDefaults.standard.set(aspectRatio.rawValue, forKey: SettingsKey.aspectRatio)
+                showStatus(aspectRatio == .full ? "Full frame" : aspectRatio.rawValue)
+            }
+        }
+    }
 
     // Transient UI cues
     @Published var flash = false           // white capture-flash overlay
@@ -188,6 +201,7 @@ final class CameraController: NSObject, ObservableObject {
             self.applyMirroring()
             DispatchQueue.main.async {
                 self.exposureLocked = false; self.focusLocked = false; self.whiteBalanceLocked = false
+                self.zoomFactor = 1
                 self.publishCapabilities()
             }
         }
@@ -210,6 +224,9 @@ final class CameraController: NSObject, ObservableObject {
             reactionTypeMap = map
             caps.reactionTypes = Array(map.keys).sorted()
         }
+        let dims = CMVideoFormatDescriptionGetDimensions(dev.activeFormat.formatDescription)
+        caps.maxZoom = CaptureGeometry.maxZoom(formatWidth: CGFloat(dims.width))
+        sensorAspect = dims.height > 0 ? CGFloat(dims.width) / CGFloat(dims.height) : 16.0 / 9.0
         capabilities = caps
         centerStageOn = { if #available(macOS 12.3, *) { return dev.isCenterStageActive } else { return false } }()
     }
@@ -292,6 +309,22 @@ final class CameraController: NSObject, ObservableObject {
     func performReaction(_ raw: String) {
         guard #available(macOS 14.0, *), let type = reactionTypeMap[raw] else { return }
         configureDevice { dev in dev.performEffect(for: type) }
+    }
+
+    func setZoom(_ factor: CGFloat) {
+        let clamped = min(max(1, factor), max(1, capabilities.maxZoom))
+        if abs(clamped - zoomFactor) > 0.001 { zoomFactor = clamped }
+    }
+
+    func cycleZoomPreset() {
+        let presets: [CGFloat] = [1, 2, 3].filter { $0 <= capabilities.maxZoom + 0.001 }
+        let next = presets.first { $0 > zoomFactor + 0.01 } ?? 1
+        setZoom(next)
+        showStatus(String(format: "%g×", next))
+    }
+
+    func cycleAspectRatio() {
+        aspectRatio = aspectRatio.next
     }
 
     private func applyMirroring() {
