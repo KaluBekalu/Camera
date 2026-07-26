@@ -10,6 +10,8 @@ struct ContentView: View {
     @AppStorage(SettingsKey.mirror) private var mirrorSetting = true
     @AppStorage(SettingsKey.selfTimer) private var selfTimer = 0
 
+    @State private var zoomAtPinchStart: CGFloat?
+
     var body: some View {
         ZStack {
             Color.black.ignoresSafeArea()
@@ -46,7 +48,18 @@ struct ContentView: View {
 
     private var previewLayer: some View {
         GeometryReader { geo in
-            CameraPreview(session: camera.session, mirrored: camera.mirrored)
+            CameraPreview(session: camera.session,
+                          mirrored: camera.mirrored,
+                          zoom: camera.zoomFactor,
+                          aspectFill: camera.aspectRatio == .full,
+                          onZoomDelta: { delta in
+                              camera.setZoom(camera.zoomFactor * (1 + delta * 0.01))
+                          })
+                .overlay {
+                    if let ratio = camera.aspectRatio.ratio {
+                        AspectMaskOverlay(sensorAspect: camera.sensorAspect, targetRatio: ratio)
+                    }
+                }
                 .overlay { if showGrid { GridOverlay() } }
                 .overlay(focusReticle)
                 .contentShape(Rectangle())
@@ -56,6 +69,14 @@ struct ContentView: View {
                                         y: value.location.y / geo.size.height)
                         camera.focus(atNormalizedPoint: p)
                     }
+                )
+                .simultaneousGesture(
+                    MagnifyGesture()
+                        .onChanged { value in
+                            if zoomAtPinchStart == nil { zoomAtPinchStart = camera.zoomFactor }
+                            camera.setZoom((zoomAtPinchStart ?? 1) * value.magnification)
+                        }
+                        .onEnded { _ in zoomAtPinchStart = nil }
                 )
                 .ignoresSafeArea()
         }
@@ -137,6 +158,34 @@ struct ContentView: View {
             // Self-timer cycles Off → 3s → 10s.
             GlassTimerButton(seconds: $selfTimer)
 
+            if camera.capabilities.maxZoom >= 1.5 {
+                Button { camera.cycleZoomPreset() } label: {
+                    Text(zoomLabel)
+                        .font(.system(size: 12, weight: .bold))
+                        .foregroundStyle(camera.zoomFactor > 1.01 ? Theme.accent : .white)
+                        .frame(width: Theme.controlSize, height: Theme.controlSize)
+                        .background(.ultraThinMaterial, in: Circle())
+                        .overlay(Circle().strokeBorder(
+                            camera.zoomFactor > 1.01 ? Theme.accent.opacity(0.9) : .white.opacity(0.12),
+                            lineWidth: camera.zoomFactor > 1.01 ? 1.5 : 1))
+                }
+                .buttonStyle(.plain)
+                .help("Zoom (pinch or scroll on the preview)")
+            }
+
+            Button { camera.cycleAspectRatio() } label: {
+                Text(camera.aspectRatio.label)
+                    .font(.system(size: camera.aspectRatio == .full ? 10 : 11, weight: .bold))
+                    .foregroundStyle(camera.aspectRatio == .full ? .white : Theme.accent)
+                    .frame(width: Theme.controlSize, height: Theme.controlSize)
+                    .background(.ultraThinMaterial, in: Circle())
+                    .overlay(Circle().strokeBorder(
+                        camera.aspectRatio == .full ? .white.opacity(0.12) : Theme.accent.opacity(0.9),
+                        lineWidth: camera.aspectRatio == .full ? 1 : 1.5))
+            }
+            .buttonStyle(.plain)
+            .help("Aspect ratio")
+
             GlassCircleButton(systemImage: showGrid ? "grid" : "grid",
                               active: showGrid) { showGrid.toggle() }
 
@@ -202,6 +251,10 @@ struct ContentView: View {
 
     private func timeString(_ s: Int) -> String {
         String(format: "%02d:%02d", s / 60, s % 60)
+    }
+
+    private var zoomLabel: String {
+        camera.zoomFactor > 1.01 ? String(format: "%.1f×", camera.zoomFactor) : "1×"
     }
 
     // MARK: Bottom bar
@@ -360,5 +413,26 @@ struct GlassTimerButton: View {
         .onHover { hovering = $0 }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: hovering)
         .help("Self-timer")
+    }
+}
+
+/// Dims the regions of the preview that fall outside the selected aspect
+/// ratio, iOS-Camera style. The clear window is exactly what gets saved.
+private struct AspectMaskOverlay: View {
+    let sensorAspect: CGFloat   // active format width/height
+    let targetRatio: CGFloat    // selected output width/height
+
+    var body: some View {
+        GeometryReader { geo in
+            let bounds = CGRect(origin: .zero, size: geo.size)
+            let video = CaptureGeometry.centeredRect(ratio: sensorAspect, inside: bounds)
+            let window = CaptureGeometry.centeredRect(ratio: targetRatio, inside: video)
+            Path { p in
+                p.addRect(bounds)
+                p.addRect(window)
+            }
+            .fill(Color.black.opacity(0.55), style: FillStyle(eoFill: true))
+        }
+        .allowsHitTesting(false)
     }
 }
