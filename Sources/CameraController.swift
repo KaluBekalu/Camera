@@ -2,7 +2,9 @@ import AVFoundation
 import AppKit
 import Combine
 import CoreMedia
+import ImageIO
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// Capture mode the UI is currently in.
 enum CaptureMode: String, CaseIterable, Identifiable {
@@ -75,6 +77,10 @@ final class CameraController: NSObject, ObservableObject {
     @Published var flash = false           // white capture-flash overlay
     @Published var countdown: Int? = nil   // self-timer countdown number
     @Published var focusPoint: CGPoint? = nil // normalized tap location for reticle
+
+    // Crop parameters captured at shutter time
+    private var pendingZoom: CGFloat = 1
+    private var pendingAspect: CGFloat?
 
     // MARK: AVFoundation
     let session = AVCaptureSession()
@@ -371,6 +377,8 @@ final class CameraController: NSObject, ObservableObject {
     }
 
     private func capturePhoto() {
+        pendingZoom = zoomFactor
+        pendingAspect = aspectRatio.ratio
         triggerFlash()
         if UserDefaults.standard.bool(forKey: SettingsKey.shutterSound) {
             NSSound(named: NSSound.Name("Pop"))?.play()
@@ -398,6 +406,9 @@ final class CameraController: NSObject, ObservableObject {
     }
 
     private func startRecording() {
+        if zoomFactor > 1.001 || aspectRatio != .full {
+            showStatus("Video records the full frame")
+        }
         sessionQueue.async { [weak self] in
             guard let self, !self.movieOutput.isRecording else { return }
             let url = self.outputURL(kind: .video)
@@ -469,9 +480,30 @@ extension CameraController: AVCapturePhotoCaptureDelegate {
         guard error == nil, let data = photo.fileDataRepresentation() else {
             announce("Photo failed", capture: nil); return
         }
+        let final = croppedPhotoData(data) ?? data   // never lose a shot
         let url = outputURL(kind: .photo)
-        do { try data.write(to: url); announce("Saved photo", capture: url) }
+        do { try final.write(to: url); announce("Saved photo", capture: url) }
         catch { announce("Could not save photo", capture: nil) }
+    }
+
+    /// Applies the zoom/aspect crop the user saw in the preview. Returns nil
+    /// (caller falls back to the original) when no crop is active or any
+    /// ImageIO step fails.
+    private func croppedPhotoData(_ data: Data) -> Data? {
+        guard pendingZoom > 1.001 || pendingAspect != nil else { return nil }
+        guard let src = CGImageSourceCreateWithData(data as CFData, nil),
+              let image = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
+        let size = CGSize(width: image.width, height: image.height)
+        let rect = CaptureGeometry.cropRect(imageSize: size, zoom: pendingZoom, aspect: pendingAspect)
+        guard rect.width >= 1, rect.height >= 1, rect != CGRect(origin: .zero, size: size),
+              let cropped = image.cropping(to: rect) else { return nil }
+        let type = CGImageSourceGetType(src) ?? UTType.jpeg.identifier as CFString
+        let props = CGImageSourceCopyPropertiesAtIndex(src, 0, nil)
+        let out = NSMutableData()
+        guard let dest = CGImageDestinationCreateWithData(out, type, 1, nil) else { return nil }
+        CGImageDestinationAddImage(dest, cropped, props)
+        guard CGImageDestinationFinalize(dest) else { return nil }
+        return out as Data
     }
 }
 
