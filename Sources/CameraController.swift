@@ -81,6 +81,7 @@ final class CameraController: NSObject, ObservableObject {
     // Crop parameters captured at shutter time
     private var pendingZoom: CGFloat = 1
     private var pendingAspect: CGFloat?
+    private let pendingCropLock = NSLock()
 
     // MARK: AVFoundation
     let session = AVCaptureSession()
@@ -377,8 +378,10 @@ final class CameraController: NSObject, ObservableObject {
     }
 
     private func capturePhoto() {
+        pendingCropLock.lock()
         pendingZoom = zoomFactor
         pendingAspect = aspectRatio.ratio
+        pendingCropLock.unlock()
         triggerFlash()
         if UserDefaults.standard.bool(forKey: SettingsKey.shutterSound) {
             NSSound(named: NSSound.Name("Pop"))?.play()
@@ -490,11 +493,15 @@ extension CameraController: AVCapturePhotoCaptureDelegate {
     /// (caller falls back to the original) when no crop is active or any
     /// ImageIO step fails.
     private func croppedPhotoData(_ data: Data) -> Data? {
-        guard pendingZoom > 1.001 || pendingAspect != nil else { return nil }
+        pendingCropLock.lock()
+        let zoom = pendingZoom
+        let aspect = pendingAspect
+        pendingCropLock.unlock()
+        guard zoom > 1.001 || aspect != nil else { return nil }
         guard let src = CGImageSourceCreateWithData(data as CFData, nil),
               let image = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
         let size = CGSize(width: image.width, height: image.height)
-        let rect = CaptureGeometry.cropRect(imageSize: size, zoom: pendingZoom, aspect: pendingAspect)
+        let rect = CaptureGeometry.cropRect(imageSize: size, zoom: zoom, aspect: aspect)
         guard rect.width >= 1, rect.height >= 1, rect != CGRect(origin: .zero, size: size),
               let cropped = image.cropping(to: rect) else { return nil }
         let type = CGImageSourceGetType(src) ?? UTType.jpeg.identifier as CFString
