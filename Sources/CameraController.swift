@@ -82,6 +82,7 @@ final class CameraController: NSObject, ObservableObject {
     private var pendingZoom: CGFloat = 1
     private var pendingAspect: CGFloat?
     private let pendingCropLock = NSLock()
+    private var centerStageObservation: NSKeyValueObservation?
 
     // MARK: AVFoundation
     let session = AVCaptureSession()
@@ -235,7 +236,14 @@ final class CameraController: NSObject, ObservableObject {
         caps.maxZoom = CaptureGeometry.maxZoom(formatWidth: CGFloat(dims.width))
         sensorAspect = dims.height > 0 ? CGFloat(dims.width) / CGFloat(dims.height) : 16.0 / 9.0
         capabilities = caps
-        centerStageOn = { if #available(macOS 12.3, *) { return dev.isCenterStageActive } else { return false } }()
+        centerStageObservation = nil
+        if #available(macOS 12.3, *) {
+            centerStageObservation = dev.observe(\.isCenterStageActive, options: [.initial, .new]) { [weak self] device, _ in
+                DispatchQueue.main.async { self?.centerStageOn = device.isCenterStageActive }
+            }
+        } else {
+            centerStageOn = false
+        }
     }
 
     // MARK: Device configuration helper
@@ -304,13 +312,7 @@ final class CameraController: NSObject, ObservableObject {
         guard #available(macOS 12.3, *) else { return }
         let on = !centerStageOn
         AVCaptureDevice.isCenterStageEnabled = on
-        centerStageOn = on
         showStatus(on ? "Center Stage on" : "Center Stage off")
-        // The active state may resolve asynchronously; re-read shortly after.
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) { [weak self] in
-            guard let dev = self?.activeDevice else { return }
-            self?.centerStageOn = dev.isCenterStageActive
-        }
     }
 
     func performReaction(_ raw: String) {
