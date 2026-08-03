@@ -11,6 +11,7 @@
 		0D133A7AC65B022305CB8F27 /* CameraController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A0A53D514ACDB155563E0A3 /* CameraController.swift */; };
 		1061723B3BD8D57178DA3FDD /* CameraApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A566BC0E38D0B43F084B94E /* CameraApp.swift */; };
 		21F9FC11FF8BC54F67F88DEF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D5D31E27F7F604540DC4B8 /* ContentView.swift */; };
+		28C43BDBBD1A7BC770E0A0E7 /* CaptureGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8E404146527ABF7431E02E65 /* CaptureGeometry.swift */; };
 		78B46DA9CF7177EBCB0A7122 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C155A227FB848FBEE281C859 /* MenuBarView.swift */; };
 		CBF159E4E2C6259449427A6B /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41F9600FC692FFA3451FE4FB /* Settings.swift */; };
 		E3C6DE6A2CEA770F04ED32C8 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A530FD73E7E9E19BA19C18D /* CameraPreview.swift */; };
@@ -22,6 +23,7 @@
 		4A566BC0E38D0B43F084B94E /* CameraApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraApp.swift; sourceTree = "<group>"; };
 		5A530FD73E7E9E19BA19C18D /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		5AA2C1AD13E6FF9F209CBFF1 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		8E404146527ABF7431E02E65 /* CaptureGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureGeometry.swift; sourceTree = "<group>"; };
 		A9D5D31E27F7F604540DC4B8 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		C155A227FB848FBEE281C859 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		CF8CD6787A559B870C873F20 /* Camera.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Camera.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -42,6 +44,7 @@
 				4A566BC0E38D0B43F084B94E /* CameraApp.swift */,
 				1A0A53D514ACDB155563E0A3 /* CameraController.swift */,
 				5A530FD73E7E9E19BA19C18D /* CameraPreview.swift */,
+				8E404146527ABF7431E02E65 /* CaptureGeometry.swift */,
 				A9D5D31E27F7F604540DC4B8 /* ContentView.swift */,
 				C155A227FB848FBEE281C859 /* MenuBarView.swift */,
 				41F9600FC692FFA3451FE4FB /* Settings.swift */,
@@ -119,6 +122,7 @@
 				1061723B3BD8D57178DA3FDD /* CameraApp.swift in Sources */,
 				0D133A7AC65B022305CB8F27 /* CameraController.swift in Sources */,
 				E3C6DE6A2CEA770F04ED32C8 /* CameraPreview.swift in Sources */,
+				28C43BDBBD1A7BC770E0A0E7 /* CaptureGeometry.swift in Sources */,
 				21F9FC11FF8BC54F67F88DEF /* ContentView.swift in Sources */,
 				78B46DA9CF7177EBCB0A7122 /* MenuBarView.swift in Sources */,
 				CBF159E4E2C6259449427A6B /* Settings.swift in Sources */,

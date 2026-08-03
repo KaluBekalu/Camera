@@ -31,6 +31,7 @@ echo "→ Compiling…"
     "$ROOT"/Sources/*.swift
 
 cp "$ROOT/Resources/Info.plist" "$APP/Contents/Info.plist"
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"
 
 echo "→ Ad-hoc signing…"
 codesign --force --deep --sign - "$APP"

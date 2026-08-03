@@ -17,6 +17,8 @@ targets:
     platform: macOS
     sources:
       - path: Sources
+    resources:
+      - path: Resources/AppIcon.icns
     settings:
       base:
         PRODUCT_NAME: Camera
