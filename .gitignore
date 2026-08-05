@@ -13,3 +13,6 @@ xcuserdata/
 
 # Knowledge graph output
 graphify-out/
+
+# SDD scratch
+.superpowers/
