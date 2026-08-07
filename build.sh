@@ -9,11 +9,19 @@ APP_NAME="Camera"
 BUILD_DIR="$ROOT/build"
 APP="$BUILD_DIR/$APP_NAME.app"
 MACOS_DIR="$APP/Contents/MacOS"
-SWIFTC="/Library/Developer/CommandLineTools/usr/bin/swiftc"
+SWIFTC="${SWIFTC:-}"
+if [ -z "$SWIFTC" ]; then
+    if [ -x /Library/Developer/CommandLineTools/usr/bin/swiftc ]; then
+        SWIFTC=/Library/Developer/CommandLineTools/usr/bin/swiftc
+    else
+        SWIFTC="$(xcrun -f swiftc)"
+    fi
+fi
+ARCH="$(uname -m)"
 
 # Pick the newest installed Command Line Tools macOS SDK.
 SDK="$(ls -d /Library/Developer/CommandLineTools/SDKs/MacOSX*.sdk 2>/dev/null | sort -V | tail -1)"
-[ -z "$SDK" ] && SDK="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+[ -z "$SDK" ] && SDK="$(xcrun --show-sdk-path --sdk macosx)"
 
 echo "→ Using SDK: $SDK"
 
@@ -23,7 +31,7 @@ mkdir -p "$MACOS_DIR" "$APP/Contents/Resources"
 echo "→ Compiling…"
 "$SWIFTC" \
     -sdk "$SDK" \
-    -target arm64-apple-macosx14.0 \
+    -target "$ARCH-apple-macosx14.0" \
     -swift-version 5 \
     -parse-as-library \
     -O \

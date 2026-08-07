@@ -127,8 +127,8 @@ private struct AboutSettings: View {
         VStack(spacing: 10) {
             Image(systemName: "camera.fill").font(.system(size: 46)).foregroundStyle(Theme.accent)
             Text("Camera").font(.title2.bold())
-            Text("Version 1.1").foregroundStyle(.secondary)
-            Text("A lightweight, iOS-style camera for macOS.\nManual ISO, shutter, and zoom aren't shown because macOS doesn't expose them for capture devices — the controls here are the ones your camera actually supports.")
+            Text("Version 1.2").foregroundStyle(.secondary)
+            Text("A lightweight, iOS-style camera for macOS.\nZoom and aspect ratio are digital (centered crops) because macOS doesn't expose device zoom — every other control appears only when your camera reports support for it.")
                 .font(.callout)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
