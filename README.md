@@ -1,5 +1,9 @@
 # Camera
 
+![Build](https://github.com/KaluBekalu/Camera/actions/workflows/build.yml/badge.svg)
+![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 A lightweight, iOS-style **Camera** app for macOS — the simple "just open a camera"
 utility that macOS never shipped. Fast launch, live preview, one-tap shutter,
 photo + video, Continuity Camera (use your iPhone), and a menu-bar quick-check.
@@ -21,6 +25,11 @@ Command Line Tools toolchain.
   - **Center Stage** toggle (iPhone / supported Macs)
   - **Reaction effects** (macOS 14+ — hearts, confetti, thumbs-up, …)
   - **Mirror** the preview
+- **Digital zoom** — pinch, scroll, or tap the zoom button (up to 6× depending
+  on the camera's native resolution). Photos are cropped to exactly match the
+  preview.
+- **Aspect ratio** — Full / 16:9 / 4:3 / 1:1 with iOS-style dimmed framing;
+  saved photos match the visible window.
 - **Self-timer** — cycle Off / 3s / 10s with an on-screen countdown.
 - **Rule-of-thirds grid** overlay.
 - **Capture flash** and a **thumbnail** of your last shot (click → reveal in Finder).
@@ -30,10 +39,16 @@ Command Line Tools toolchain.
 
 ### Why no manual ISO / shutter / zoom?
 
-macOS marks these `API_UNAVAILABLE(macos)` on capture devices — Apple simply
-doesn't expose manual exposure duration, ISO, EV bias, or digital zoom for Mac
-capture. So rather than fake them, the app surfaces exactly the controls your
-hardware supports. (This was verified against the AVFoundation SDK headers.)
+macOS marks these `API_UNAVAILABLE(macos)` on capture devices — Apple doesn't
+expose manual exposure duration, ISO, EV bias, or *device* zoom for Mac
+capture (verified against the macOS 26 SDK headers). Zoom here is therefore
+digital: a centered crop applied identically to the preview and saved photos.
+Everything else is capability-driven — the app queries what your camera
+supports and shows exactly those controls.
+
+## Screenshots
+
+*(coming soon)*
 
 ## Build & run
 
@@ -65,6 +80,22 @@ Command Line Tools — handy if you don't have full Xcode installed:
 open build/Camera.app
 ```
 
+## Roadmap / Ideas
+
+Contributions welcome — these are researched-but-unbuilt ideas, roughly ordered:
+
+- **Screen flash** — flood the display white as fill light (the iPhone's torch
+  is not exposed to macOS; verified at runtime).
+- Zoom/aspect crop for **recorded video** (needs an `AVAssetWriter` pipeline
+  to replace `AVCaptureMovieFileOutput`).
+- Burst mode · GIF/clip capture · Core Image filters
+- Session gallery strip · share menu from the thumbnail
+- Global snap hotkey · `camera://snap` URL scheme
+- Countdown sounds · gesture/smile trigger (Vision)
+- Video pause/resume · codec (HEVC/H.264) and fps pickers
+- Desk View window · floating picture-in-picture preview
+- Watermark / timestamp overlay
+
 ## Project layout
 
 | Path | Role |
@@ -74,10 +105,13 @@ open build/Camera.app
 | `Sources/CameraPreview.swift` | `AVCaptureVideoPreviewLayer` bridged into SwiftUI |
 | `Sources/ContentView.swift` | iOS-style camera UI (shutter, mode picker, thumbnail) |
 | `Sources/MenuBarView.swift` | Compact menu-bar preview popover |
+| `Sources/CaptureGeometry.swift` | Pure zoom/aspect crop math (unit-tested) |
 | `Resources/Info.plist` | Bundle metadata + camera/mic usage strings |
 | `project.yml` | XcodeGen spec — source of truth for `Camera.xcodeproj` |
 | `Camera.xcodeproj` | Generated Xcode project (open with `⌘R` to run) |
 | `build.sh` | Compiles sources into `build/Camera.app` without Xcode |
+| `Tests/` + `test.sh` | CLT-only unit tests for the geometry code |
+| `scripts/make-icon.sh` | Regenerates `Resources/AppIcon.icns` programmatically |
 
 ## Scope (deliberate)
 
@@ -89,3 +123,7 @@ them, so the value here is speed and familiarity, not pro features.
 
 - macOS 14.0+ (Continuity Camera / `.continuityCamera` device type)
 - Xcode Command Line Tools (`xcode-select --install`)
+
+## License
+
+MIT — see [LICENSE](LICENSE).
