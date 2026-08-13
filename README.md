@@ -57,7 +57,7 @@ The main window — full-bleed preview with the floating glass controls. Here wi
 The **menu-bar quick check** — a live preview one click away, with instant
 snapshot and a jump into the full app:
 
-<img src="docs/screenshots/menubar.png" width="340" alt="Menu-bar quick check popover with live preview and Snapshot button">
+<img width="374" height="345" alt="Screenshot 2026-08-13 at 6 05 22 PM" src="https://github.com/user-attachments/assets/708c3491-af7c-4bb7-89fe-ad3abf69f8a0" />
 
 
 ## Build & run
