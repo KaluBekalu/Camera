@@ -48,7 +48,17 @@ supports and shows exactly those controls.
 
 ## Screenshots
 
-*(coming soon)*
+The main window — full-bleed preview with the floating glass controls. Here with a
+**16:9 aspect-ratio** crop active (dimmed masks show what's excluded) and the
+**zoom** control at 1×, streaming from a virtual camera:
+
+![Camera main window with 16:9 aspect masks and zoom control](docs/screenshots/hero.png)
+
+The **menu-bar quick check** — a live preview one click away, with instant
+snapshot and a jump into the full app:
+
+<img src="docs/screenshots/menubar.png" width="340" alt="Menu-bar quick check popover with live preview and Snapshot button">
+
 
 ## Build & run
 
