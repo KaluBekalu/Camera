@@ -62,6 +62,15 @@ snapshot and a jump into the full app:
 <img width="374" height="345" alt="Screenshot 2026-08-13 at 6 05 22 PM" src="https://github.com/user-attachments/assets/708c3491-af7c-4bb7-89fe-ad3abf69f8a0" />
 
 
+## Download
+
+**[⬇ Download Camera.dmg](https://github.com/KaluBekalu/Camera/releases/latest/download/Camera.dmg)** —
+signed with Developer ID and notarized by Apple. Universal (Apple silicon + Intel), macOS 14+.
+Drag Camera into Applications and open it; allow camera/microphone access when asked.
+
+Releases are built with [`scripts/release.sh`](scripts/release.sh) (build → sign
+→ notarize → staple → dmg → GitHub release).
+
 ## Build & run
 
 ### In Xcode (recommended)
