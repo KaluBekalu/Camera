@@ -4,6 +4,8 @@
 ![Platform](https://img.shields.io/badge/platform-macOS%2014%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
+<img width="932" height="599" alt="Screenshot 2026-08-13 at 7 17 33 PM" src="https://github.com/user-attachments/assets/0591d1bf-5425-47be-84f3-8c736d98d050" />
+
 A lightweight, iOS-style **Camera** app for macOS — the simple "just open a camera"
 utility that macOS never shipped. Fast launch, live preview, one-tap shutter,
 photo + video, Continuity Camera (use your iPhone), and a menu-bar quick-check.
