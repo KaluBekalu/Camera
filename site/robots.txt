@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://mac-camera.tibeblabs.com/sitemap.xml
