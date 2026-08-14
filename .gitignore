@@ -19,3 +19,6 @@ graphify-out/
 
 # Wrangler local cache
 .wrangler/
+
+# Release artifacts
+*.dmg
