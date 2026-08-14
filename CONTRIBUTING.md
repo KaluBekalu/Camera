@@ -18,8 +18,10 @@ don't hand-edit the `.xcodeproj`.
 ## Tests
 
 `./test.sh` compiles and runs the unit tests for the pure geometry code
-(`Sources/CaptureGeometry.swift`). CI runs both `build.sh` and `test.sh` on
-every push/PR — please make sure both pass locally.
+(`Sources/CaptureGeometry.swift`). Please make sure `./build.sh` and
+`./test.sh` both pass locally before opening a PR — CI on pull requests is
+triggered manually by the maintainer during review (a `pr-check` status will
+appear on your PR), and CI also runs automatically on every push to `main`.
 
 ## Design ground rules
 

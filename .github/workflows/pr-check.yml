@@ -1,0 +1,39 @@
+name: PR Check
+# Manually-triggered CI for pull requests. The maintainer runs it from the
+# Actions tab (or `gh workflow run pr-check.yml -f pr=<number>`); the result
+# is posted back to the PR as a commit status named "pr-check".
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: "Pull request number"
+        required: true
+
+permissions:
+  contents: read
+  statuses: write
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The PR's merge ref = the PR applied on top of current main,
+          # i.e. what main would look like after merging.
+          ref: refs/pull/${{ inputs.pr }}/merge
+      - name: Build app
+        run: ./build.sh
+      - name: Run tests
+        run: ./test.sh
+      - name: Report status on the PR
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          HEAD_SHA=$(gh api "repos/${{ github.repository }}/pulls/${{ inputs.pr }}" --jq .head.sha)
+          gh api "repos/${{ github.repository }}/statuses/$HEAD_SHA" \
+            -f state="${{ job.status == 'success' && 'success' || 'failure' }}" \
+            -f context="pr-check" \
+            -f description="Manual build + test: ${{ job.status }}" \
+            -f target_url="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
