@@ -16,3 +16,6 @@ graphify-out/
 
 # SDD scratch
 .superpowers/
+
+# Wrangler local cache
+.wrangler/
