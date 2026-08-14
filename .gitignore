@@ -22,3 +22,6 @@ graphify-out/
 
 # Release artifacts
 *.dmg
+
+# Private maintainer notes
+/local-docs/
