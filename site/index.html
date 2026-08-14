@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Camera — the camera app macOS never shipped</title>
+<meta name="description" content="A free, open-source camera app for macOS. Live preview, one-tap photos and video, Continuity Camera, digital zoom, and aspect ratios — fast, familiar, and fully local.">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="canonical" href="https://camera.tibeblabs.com/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#0b0b0f">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Camera">
+<meta property="og:locale" content="en_US">
+<meta property="og:url" content="https://camera.tibeblabs.com/">
+<meta property="og:title" content="Camera — the camera app macOS never shipped">
+<meta property="og:description" content="A free, open-source camera app for macOS. Live preview, one-tap photos and video, Continuity Camera, digital zoom, and aspect ratios.">
+<meta property="og:image" content="https://camera.tibeblabs.com/og.jpg">
+<meta property="og:image:alt" content="Camera app main window with live preview and glass controls">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Camera — the camera app macOS never shipped">
+<meta name="twitter:description" content="A free, open-source camera app for macOS. Fast launch, live preview, Continuity Camera, zoom, and aspect ratios.">
+<meta name="twitter:image" content="https://camera.tibeblabs.com/og.jpg">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://camera.tibeblabs.com/#website",
+      "name": "Camera",
+      "url": "https://camera.tibeblabs.com/",
+      "publisher": { "@id": "https://tibeblabs.com/#organization" }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://tibeblabs.com/#organization",
+      "name": "Tibeb Labs",
+      "url": "https://tibeblabs.com/"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "name": "Camera",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "macOS",
+      "url": "https://camera.tibeblabs.com/",
+      "image": "https://camera.tibeblabs.com/og.jpg",
+      "description": "A free, open-source camera app for macOS with live preview, photo and video capture, Continuity Camera, digital zoom, and aspect ratios.",
+      "publisher": { "@id": "https://tibeblabs.com/#organization" },
+      "offers": [ { "@type": "Offer", "name": "Camera", "price": "0", "priceCurrency": "USD" } ]
+    }
+  ]
+}
+</script>
+<style>
+  :root {
+    --bg: #0b0b0f;
+    --card: rgba(255, 255, 255, 0.045);
+    --border: rgba(255, 255, 255, 0.09);
+    --text: #ececf1;
+    --muted: #9a9aa8;
+    --yellow: #ffcc00;
+    --amber: #ff9f0a;
+    --green: #35d07f;
+    --grad: linear-gradient(135deg, var(--yellow), var(--amber));
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(600px 400px at 15% 0%, rgba(255, 204, 0, 0.07), transparent 60%),
+      radial-gradient(700px 500px at 85% 20%, rgba(255, 159, 10, 0.08), transparent 60%),
+      radial-gradient(500px 400px at 50% 100%, rgba(255, 204, 0, 0.05), transparent 60%);
+    pointer-events: none;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; position: relative; }
+
+  .rv { opacity: 0; transform: translateY(22px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .rv.in { opacity: 1; transform: none; }
+
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 9px; font-weight: 700; font-size: 17px; }
+  .logo { width: 27px; height: 27px; display: block; border-radius: 7px; }
+  nav .links a { color: var(--muted); text-decoration: none; font-size: 14px; margin-left: 22px; }
+  nav .links a:hover { color: var(--text); }
+
+  .hero { text-align: center; padding: 62px 0 26px; }
+  .pill {
+    display: inline-block; font-size: 12.5px; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 100px;
+    padding: 5px 14px; margin-bottom: 26px; background: var(--card);
+  }
+  .pill b { color: var(--yellow); font-weight: 600; }
+  h1 { font-size: clamp(38px, 6vw, 62px); line-height: 1.05; letter-spacing: -0.02em; font-weight: 800; }
+  h1 .g {
+    background: linear-gradient(90deg, var(--yellow), var(--amber), var(--yellow));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    animation: shimmer 6s linear infinite;
+  }
+  @keyframes shimmer { to { background-position: 200% 0; } }
+  .sub { color: var(--muted); font-size: 18px; line-height: 1.6; max-width: 640px; margin: 22px auto 34px; }
+  .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 26px; border-radius: 12px; font-size: 15px; font-weight: 600;
+    text-decoration: none; transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.primary { background: var(--grad); color: #1a1200; box-shadow: 0 8px 30px rgba(255, 170, 0, 0.28); }
+  .btn.primary:hover { box-shadow: 0 12px 40px rgba(255, 170, 0, 0.4); }
+  .btn.ghost { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+  .cta-note { color: var(--muted); font-size: 12.5px; margin-top: 14px; }
+
+  .shot { margin: 56px auto 0; max-width: 920px; }
+  .shot img {
+    width: 100%; height: auto; display: block; border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55);
+  }
+
+  section { padding: 84px 0 0; }
+  .kicker {
+    font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--yellow); font-weight: 700; margin-bottom: 12px;
+  }
+  h2 { font-size: clamp(26px, 3.6vw, 38px); letter-spacing: -0.015em; font-weight: 800; }
+  .lead { color: var(--muted); font-size: 16.5px; line-height: 1.65; max-width: 620px; margin-top: 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 38px; }
+  @media (max-width: 860px) { .grid { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 22px;
+  }
+  .card .ic { font-size: 20px; margin-bottom: 12px; display: block; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 7px; }
+  .card p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+  .build {
+    margin-top: 38px; background: var(--card); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px;
+  }
+  .build code, .build pre {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 13.5px;
+  }
+  .build pre {
+    background: rgba(0, 0, 0, 0.45); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 18px; overflow-x: auto; line-height: 1.7; margin-top: 14px;
+  }
+  .build pre .c { color: var(--muted); }
+  .build p { color: var(--muted); font-size: 14.5px; line-height: 1.65; }
+
+  footer {
+    margin-top: 96px; border-top: 1px solid var(--border);
+    padding: 30px 0 40px; display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; color: var(--muted); font-size: 13.5px;
+  }
+  footer a { color: var(--muted); text-decoration: none; }
+  footer a:hover { color: var(--text); }
+  footer .links a { margin-left: 18px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <nav>
+    <div class="brand"><img class="logo" src="apple-touch-icon.png" alt="" width="27" height="27"> Camera</div>
+    <div class="links">
+      <a href="#features">Features</a>
+      <a href="#open-source">Open source</a>
+      <a href="https://github.com/KaluBekalu/Camera">GitHub</a>
+      <a href="https://tibeblabs.com">Tibeb Labs</a>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="pill rv"><b>Free &amp; open source</b> · macOS 14+ · MIT license</div>
+    <h1 class="rv">The camera app<br><span class="g">macOS never shipped.</span></h1>
+    <p class="sub rv">Fast launch, full-bleed live preview, one-tap photos and video. Use your
+    iPhone via Continuity Camera, pinch to zoom, frame with real aspect ratios — all local,
+    no accounts, no telemetry.</p>
+    <div class="cta rv">
+      <a class="btn primary" href="https://github.com/KaluBekalu/Camera">View on GitHub</a>
+      <a class="btn ghost" href="#open-source">Build from source</a>
+    </div>
+    <div class="cta-note rv">Builds in seconds with just the Xcode Command Line Tools.</div>
+
+    <div class="shot rv">
+      <img src="screenshot.png" alt="Camera main window: live mountain-lake preview with 16:9 aspect masks, zoom control, and iOS-style glass buttons" loading="eager">
+    </div>
+  </header>
+
+  <section id="features">
+    <div class="kicker rv">Features</div>
+    <h2 class="rv">Familiar like iOS. Honest like a good tool.</h2>
+    <p class="lead rv">Every control you see is one your camera actually supports — the app
+    queries device capabilities instead of guessing, so an iPhone shows more than a webcam.</p>
+    <div class="grid">
+      <div class="card rv"><span class="ic">📱</span><h3>Continuity Camera</h3><p>Your iPhone appears automatically, Desk View included. Switch cameras from the glass menu in one click.</p></div>
+      <div class="card rv"><span class="ic">🔍</span><h3>Digital zoom</h3><p>Pinch, scroll, or tap up to 6× — the limit adapts to your camera's real resolution. Saved photos match the preview exactly.</p></div>
+      <div class="card rv"><span class="ic">🖼️</span><h3>Aspect ratios</h3><p>Full, 16:9, 4:3, or square with iOS-style dimmed framing. What you frame is what you get.</p></div>
+      <div class="card rv"><span class="ic">🎥</span><h3>Photo &amp; video</h3><p>One-tap shutter or spacebar, video with mic audio, self-timer, grid, capture flash, and a last-shot thumbnail.</p></div>
+      <div class="card rv"><span class="ic">✨</span><h3>Adaptive controls</h3><p>Exposure, focus, and white-balance locks, tap-to-focus, Center Stage, and reaction effects — shown only when supported.</p></div>
+      <div class="card rv"><span class="ic">📎</span><h3>Menu-bar quick check</h3><p>A live preview one click from the menu bar. Snap a photo or jump into the full app.</p></div>
+    </div>
+  </section>
+
+  <section id="open-source">
+    <div class="kicker rv">Open source</div>
+    <h2 class="rv">Read it, build it, make it yours.</h2>
+    <p class="lead rv">MIT-licensed Swift + SwiftUI, small enough to read in an afternoon.
+    No Xcode required — it compiles with the free Command Line Tools.</p>
+    <div class="build rv">
+      <p>Clone and build:</p>
+      <pre><span class="c"># no full Xcode needed — just the Command Line Tools</span>
+git clone https://github.com/KaluBekalu/Camera.git
+cd Camera
+./build.sh
+open build/Camera.app</pre>
+      <p style="margin-top:14px">Prefer Xcode? <code>open Camera.xcodeproj</code> and press ⌘R.
+      The roadmap in the README lists good first contributions — screen flash, burst mode,
+      filters, and more.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div>© <span id="y">2026</span> <a href="https://tibeblabs.com">Tibeb Labs</a> · MIT License</div>
+    <div class="links">
+      <a href="https://github.com/KaluBekalu/Camera">GitHub</a>
+      <a href="https://github.com/KaluBekalu/Camera/issues">Issues</a>
+      <a href="https://loopcam.tibeblabs.com">LoopCam</a>
+    </div>
+  </footer>
+
+</div>
+<script>
+  document.getElementById("y").textContent = new Date().getFullYear();
+  const io = new IntersectionObserver((es) => {
+    es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll(".rv").forEach((el) => io.observe(el));
+</script>
+</body>
+</html>
