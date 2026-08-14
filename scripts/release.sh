@@ -48,7 +48,7 @@ APP="$TMP/$APP_NAME.app"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 
 for ARCH in arm64 x86_64; do
-    echo "→ Compiling $ARCH…"
+    echo "-> Compiling ${ARCH}..."
     "$SWIFTC" -sdk "$SDK" -target "$ARCH-apple-macosx14.0" -swift-version 5 \
         -parse-as-library -O -o "$TMP/$APP_NAME-$ARCH" Sources/*.swift
 done
