@@ -5,6 +5,17 @@ Companion to [RESEARCH.md](./RESEARCH.md), which covers *which libraries*. This 
 
 ---
 
+## Locked decisions
+
+| Question | Decision | Consequence |
+|---|---|---|
+| First mode | **Algorithms** | Phase 1 is the code editor. System design inherits the loop |
+| Deployment | **Laptop only** | Pipecat, run locally. No WebRTC transport layer needed |
+| Problems | **One simple built-in to start**, bring-your-own later | Needs a reference solution + rubric for that one problem |
+| Tutor style | **Interjects proactively** | Adds a third observation trigger — see Decision 3 |
+
+---
+
 ## The five decisions that matter
 
 Everything else is implementation detail. These are the choices that determine whether
@@ -48,14 +59,36 @@ Screen capture stays on the roadmap for "practice in my real IDE" later. It's a
 The naive version streams frames to the model continuously. That is expensive, slow, and
 produces a tutor that interrupts constantly.
 
-Instead, the tutor looks at your workspace on **exactly two triggers**:
+Instead, the tutor looks at your workspace on **exactly three triggers**:
 
 - **You paused speaking** and the turn detector thinks you're done.
 - **Your workspace changed meaningfully** — digest diff exceeds a threshold — and
   you've been quiet for N seconds.
+- **The interjection gate fires** — the slow path spotted something urgent enough to
+  speak up unprompted. See below.
 
 Between those, nothing is sent. This is the difference between a $3/hour session and a
 $40/hour one.
+
+### The interjection gate
+
+A tutor that interjects is the whole point — but an interjecting tutor with no brakes is
+unbearable. Unprompted speech needs to clear every one of these:
+
+1. **The slow path marked it urgent.** Coach notes carry an `urgency` field; only
+   `high` is allowed to interrupt. A missing edge case can wait for the next pause; a
+   fundamental misconception about what the code does cannot.
+2. **You're not mid-flow.** No interjecting while you're actively typing or speaking.
+   Requires a short quiet window on both the mic and the editor.
+3. **Rate limit.** At most one unprompted interjection per N minutes, regardless of how
+   much the tutor has to say. Ship with N high (two or three minutes) and tune down.
+4. **Confidence is high.** The slow path already emits a confidence field. A tutor that
+   interrupts to say something wrong is worse than one that stays quiet.
+
+Build this as a single gate function with all four checks in one place, so tuning it is
+editing one file rather than hunting through the pipeline. Expect to spend real time on
+these thresholds — this is the knob that decides whether the tutor feels like a mentor
+or a backseat driver.
 
 ### Decision 4: two models, not one
 
@@ -83,7 +116,8 @@ The slow path emits **structured output**, not prose:
   "misconceptions":[{ "claim": "Redis gives us durability here",
                       "why_wrong": "no persistence configured; a restart loses the queue" }],
   "suggested_probe": "Ask what happens to in-flight jobs if Redis restarts.",
-  "confidence": "high"
+  "confidence": "high",
+  "urgency": "high"   // gates unprompted interjection — see Decision 3
 }
 ```
 
@@ -232,13 +266,16 @@ like walkie-talkie. If this phase doesn't feel right, nothing built on top of it
 ### Phase 1 — algorithm mode
 
 - React + Vite frontend, CodeMirror 6 editor
-- A handful of hardcoded problems
+- **One** built-in problem, with a reference solution and a rubric of the things a good
+  answer covers. One is enough to tune the whole loop; a bank is Phase 3 work
 - Code state sent on pause; tutor sees what you've written
+- Slow path emitting coach notes against that rubric
+- The interjection gate, with thresholds set conservatively
 - Socratic system prompt (draft below)
 - Push-to-talk hotkey
 
-**Done when:** you can work a two-pointer problem out loud and get useful nudges instead
-of the answer.
+**Done when:** you can work the problem out loud, get useful nudges instead of the
+answer, and the tutor interrupts you *only* when you'd want it to.
 
 ### Phase 2 — system design mode
 
@@ -313,16 +350,14 @@ project, and it's a text file.
 
 ## Open questions
 
-Worth deciding before Phase 1, since they change the shape of the code:
+The four that shaped the code are settled — see [Locked decisions](#locked-decisions).
+What's left is tuning, answerable only by using the thing:
 
-1. **Does this need to run anywhere but your laptop?** If yes, LiveKit over Pipecat, and
-   that decision is cheaper made now than later.
-2. **Which mode do you actually want first?** System design is the more compelling demo
-   and the more novel product. Algorithm mode is meaningfully easier to build. My
-   instinct is algorithm mode first *because* it's easier — it gets you a working loop
-   sooner, and system design inherits everything you learn.
-3. **Does the tutor need a problem bank, or do you bring your own problem?** Bring-your-
-   own is far less work for v1 and probably matches how you actually practice.
-4. **How much should the tutor talk unprompted?** A tutor that only speaks when spoken to
-   is a different product from one that interjects. Worth trying both — it's a
-   configuration flag, not an architecture.
+1. **Interjection thresholds.** How urgent is urgent enough, how long a quiet window, how
+   hard a rate limit. Ship conservative, loosen by feel.
+2. **How long a "thinking pause" is normal for you.** Mode-dependent, and probably
+   longer than any default. Measure it against a recording of yourself before tuning.
+3. **Whether the fast and slow paths need different models.** Start both on the same one
+   and split only when measurement says so.
+4. **Whether coach notes should be visible during the session** or only in the report.
+   Live is more useful; live may also be distracting mid-problem. Easy to toggle.

@@ -43,4 +43,6 @@ meaningfully and writes structured "coach notes" the fast model reads. That spli
 what makes the tutor feel both snappy and actually insightful.
 
 Build order starts with the riskiest part: **a voice loop you can interrupt.** Nothing
-else matters if that doesn't feel right.
+else matters if that doesn't feel right. Then algorithm mode, with one built-in problem
+and a tutor that interjects when it spots something — see
+[Locked decisions](./PLAN.md#locked-decisions).
